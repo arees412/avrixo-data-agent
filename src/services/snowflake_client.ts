@@ -30,12 +30,33 @@ type SnowflakePool = {
 
 let pool: SnowflakePool | null = null;
 
+function requiredSnowflakeValue(
+  name: string,
+  value: string | undefined,
+): string {
+  if (!value) {
+    throw new Error(
+      `${name} is required before using the inherited Snowflake client`,
+    );
+  }
+  return value;
+}
+
 /** Build base connection options from environment (do not log secrets) */
 function getConnectionOptions() {
   return {
-    account: config.SNOWFLAKE_ACCOUNT,
-    username: config.SNOWFLAKE_USERNAME,
-    password: config.SNOWFLAKE_PASSWORD,
+    account: requiredSnowflakeValue(
+      "SNOWFLAKE_ACCOUNT",
+      config.SNOWFLAKE_ACCOUNT,
+    ),
+    username: requiredSnowflakeValue(
+      "SNOWFLAKE_USERNAME",
+      config.SNOWFLAKE_USERNAME,
+    ),
+    password: requiredSnowflakeValue(
+      "SNOWFLAKE_PASSWORD",
+      config.SNOWFLAKE_PASSWORD,
+    ),
     database: config.SNOWFLAKE_DATABASE,
     schema: config.SNOWFLAKE_SCHEMA,
     warehouse: config.SNOWFLAKE_WAREHOUSE,
@@ -88,7 +109,7 @@ async function initPool() {
     },
   } as SnowflakePool;
   console.warn(
-    "[snowflake] SDK pool not available; using single connection fallback"
+    "[snowflake] SDK pool not available; using single connection fallback",
   );
   return pool;
 }

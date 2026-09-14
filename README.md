@@ -1,142 +1,123 @@
-# OSS Data Analyst
+# Avrixo DataAgent
 
-An AI data analyst agent that explores a semantic layer in a sandbox environment to answer natural language questions with SQL.
+### Governed AI Analytics & BI Platform
 
-## Overview
+A governed AI analytics platform that translates natural-language business questions into validated read-only queries, semantic metrics, charts, and grounded executive insights.
 
-OSS Data Analyst uses a sandboxed exploration approach: instead of hardcoding schema knowledge into prompts, the agent is given shell access to a sandbox containing your semantic layer files. It discovers the schema dynamically using `cat`, `grep`, and `ls` commands, then builds and executes SQL queries based on what it finds.
+## Upstream & Fork Scope
 
-This architecture means the agent can:
-- Adapt to any schema without prompt changes
-- Explore relationships between entities naturally
-- Handle schema updates without redeployment
-- Reason about data the same way a human analyst would
+This project is a customized derivative of [vercel-labs/oss-data-analyst](https://github.com/vercel-labs/oss-data-analyst).
 
-## How It Works
+The original sandboxed analytics foundation, inherited code, Git history, and upstream implementation remain credited to Vercel Labs and contributors. The fork preserves the original MIT license and GitHub fork relationship.
 
-1. **Sandbox Creation** - A Vercel Sandbox is spun up and populated with your semantic layer YAML files
-2. **Schema Exploration** - The agent uses shell commands to browse the catalog and entity definitions
-3. **Query Building** - Based on discovered schema, the agent constructs SQL queries
-4. **Execution** - Queries run against your SQLite database
-5. **Reporting** - Results are formatted with a narrative explanation
+Avrixo-specific engineering is documented in [FORK_CHANGES.md](FORK_CHANGES.md). The exact audited upstream revision is recorded in [UPSTREAM.md](UPSTREAM.md).
 
+## What This Fork Adds
+
+- Typed question-to-plan-to-query pipeline with configurable confidence gates
+- Programmatic SQL parser validation, SELECT-only enforcement, single-statement checks, row caps, and timeouts
+- SQLite adapter using a read-only worker that can be terminated at the timeout boundary
+- PostgreSQL adapter using `BEGIN READ ONLY`, transaction-local statement timeout, parameter binding, and rollback
+- Validated semantic entities and governed, versioned sample metric definitions
+- Metric resolution that prefers an approved metric over an invented formula
+- Privacy-aware schema exposure plus a reusable parameterized row-policy abstraction
+- Deterministic statistics, period-over-period change, ranking, trend, and documented anomaly flags
+- Chart specifications validated against actual result columns and rendered through a controlled bar/line component
+- Numeric insight grounding against query results and computed analytics
+- Sanitized typed audit events, lightweight observability, and reviewable bounded analysis history
+- Deterministic evaluation and end-to-end flows that need no paid model or production database
+- Fork-specific CI for formatting, linting, types, tests, evaluation, build, secret scanning, and docs
+
+All bundled metrics and records are sample data. They are not production claims about Avrixo or any customer.
+
+## Governed Flow
+
+```mermaid
+flowchart TD
+  Q[User question] --> P[Typed query plan]
+  P --> S[Semantic and metric resolution]
+  S --> G[Dialect-aware SQL generation]
+  G --> V[SQL parser and safety policy]
+  V --> D[Read-only data source adapter]
+  D --> R[Result validation]
+  R --> A[Deterministic analytics]
+  A --> C[Validated chart specification]
+  C --> I[Grounded executive insight]
+  I --> U[Audit and observability event]
+  PP[Privacy and row policies] -.-> S
+  PP -.-> D
 ```
-User Question
-     ↓
-┌─────────────────────────────────────┐
-│           Vercel Sandbox            │
-│  ┌─────────────────────────────┐   │
-│  │  semantic/                   │   │
-│  │  ├── catalog.yml            │   │
-│  │  └── entities/              │   │
-│  │      ├── companies.yml      │   │
-│  │      ├── people.yml         │   │
-│  │      └── accounts.yml       │   │
-│  └─────────────────────────────┘   │
-│                                     │
-│  Agent explores with:               │
-│  • cat semantic/catalog.yml         │
-│  • grep -r "keyword" semantic/      │
-│  • cat semantic/entities/*.yml      │
-└─────────────────────────────────────┘
-     ↓
-SQL Query → Database → Results → Narrative
-```
+
+See [docs/architecture.md](docs/architecture.md) for components and trust boundaries.
 
 ## Quick Start
 
-### Prerequisites
+Prerequisites:
 
-- Node.js 20+
-- pnpm
-- Vercel AI Gateway API key
-
-### Installation
+- Node.js 20
+- pnpm 8.15
 
 ```bash
-git clone https://github.com/vercel-labs/oss-data-analyst.git
-cd oss-data-analyst
 pnpm install
-```
-
-### Configuration
-
-```bash
-cp env.local.example .env.local
-```
-
-Add your Vercel AI Gateway key to `.env.local`.
-
-### Initialize Database
-
-```bash
 pnpm initDatabase
-```
-
-Creates a SQLite database with sample data (Companies, People, Accounts).
-
-### Run
-
-```bash
 pnpm dev
 ```
 
-Open http://localhost:3000
+Open `http://localhost:3000`. The governed demo endpoint supports these deterministic sample questions:
 
-## Semantic Layer
+- `Show monthly revenue trend`
+- `Top 5 companies by revenue`
 
-The semantic layer lives in `src/semantic/` and defines your data model:
+`Delete all customers` is included as a negative path and is rejected before any database execution.
 
-```
-src/semantic/
-├── catalog.yml           # Entity index with descriptions
-└── entities/
-    ├── companies.yml     # Company entity definition
-    ├── people.yml        # People entity definition
-    └── accounts.yml      # Accounts entity definition
-```
+The inherited AI-assisted chat route remains available for optional experimentation and can use the Vercel AI SDK. Automated tests and CI do not invoke paid models or require Vercel credentials.
 
-Each entity YAML includes:
-- `sql_table_name` - The underlying table
-- `fields` - Available columns with SQL expressions
-- `joins` - Relationships to other entities
-- Example questions the entity can answer
+## Data Sources
 
-The agent reads these files at runtime to understand your schema.
+The common `DataSourceAdapter` contract exposes schema introspection, health checks, capabilities, dialect, and bounded read-only execution.
 
-## Example Questions
+- SQLite: local, file-backed, `query_only`, read-only connection, outer row cap, and worker termination on timeout
+- PostgreSQL: connection-pool adapter, read-only transaction, local statement timeout, parameters, and unconditional rollback
 
-- "How many companies are in the Technology industry?"
-- "What is the average salary by department?"
-- "Show me the top 5 accounts by monthly value"
-- "Which companies have the most employees?"
+CI validates PostgreSQL protocol behavior with an injected deterministic client. It does not claim integration against a production PostgreSQL server.
 
-## Architecture
+## Semantic and Privacy Governance
 
-**Stack**: Next.js, Vercel AI SDK, Vercel Sandbox, SQLite
+`src/semantic/entities/` contains the inherited YAML entity definitions. `src/semantic/metrics.yml` adds versioned governed sample metrics with owner, source, formula, synonyms, and allowed dimensions. Validation detects duplicate metric names, unknown dimensions, broken joins, and unknown expression fields.
 
-**Key Files**:
-- `src/lib/agent.ts` - Agent definition and system prompt
-- `src/lib/tools/sandbox.ts` - Sandbox creation with semantic files
-- `src/lib/tools/shell.ts` - Shell command tool for exploration
-- `src/lib/tools/execute-sqlite.ts` - SQL execution tool
+`src/semantic/privacy.yml` marks sample PII and restricted fields. Model-visible schema filters omit forbidden fields and never attach row samples. A reusable row-policy builder produces parameterized tenant predicates, but this repository does not claim enterprise authentication or complete multi-tenancy.
 
-## Adding Your Own Schema
+## Validation
 
-1. Add entity YAML files to `src/semantic/entities/`
-2. Update `src/semantic/catalog.yml` with the new entity
-3. The agent will automatically discover and use the new schema
-
-No code changes required—the sandbox approach means schema changes are picked up at runtime.
-
-## Troubleshooting
-
-**Database Not Found**
 ```bash
-pnpm initDatabase
-```
-
-**Build Errors**
-```bash
+pnpm format
+pnpm lint
 pnpm type-check
+pnpm test
+pnpm validate:semantic
+pnpm evaluate
+pnpm e2e
+pnpm build
+pnpm scan:secrets
+pnpm validate:docs
 ```
+
+The deterministic suite covers destructive-operation rejection, multiple-statement rejection, unsafe SQLite commands, SQLite and PostgreSQL adapters, row limits, timeout behavior, semantic and privacy validation, chart columns, numeric grounding, auditing, redaction, analytics, failure handling, and the complete safe/unsafe E2E paths.
+
+## Security Position
+
+The model never grants execution authority. SQL is parsed and rejected programmatically before an adapter connects. Database credentials are supplied only through runtime configuration and are not written to audit events. See [docs/security.md](docs/security.md) for implemented controls, residual risks, and deployment responsibilities.
+
+This project does not claim GDPR, HIPAA, or SOC 2 compliance.
+
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Security](docs/security.md)
+- [Development](docs/development.md)
+- [Upstream revision](UPSTREAM.md)
+- [Fork changes](FORK_CHANGES.md)
+
+## License and Attribution
+
+Licensed under the inherited [MIT License](LICENSE), copyright 2025 Vercel. Avrixo additions are distributed under the same repository license. No inherited Vercel Labs code is claimed as original Avrixo work.

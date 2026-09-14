@@ -1,12 +1,12 @@
 {
-  "name": "oss-data-analyst",
+  "name": "avrixo-data-agent",
   "version": "0.1.0",
   "private": false,
   "type": "module",
   "engines": {
     "node": ">=20.0.0 <21.0.0"
   },
-  "description": "An open-source AI data science agent that converts natural language to SQL queries and provides intelligent data analysis",
+  "description": "Governed AI analytics platform for semantic metrics, validated read-only SQL, charts, and grounded insights",
   "keywords": [
     "ai",
     "data-science",
@@ -20,12 +20,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/vercel/oss-data-analyst.git"
+    "url": "https://github.com/arees412/avrixo-data-agent.git"
   },
   "bugs": {
-    "url": "https://github.com/vercel/oss-data-analyst/issues"
+    "url": "https://github.com/arees412/avrixo-data-agent/issues"
   },
-  "homepage": "https://github.com/vercel/oss-data-analyst#readme",
+  "homepage": "https://github.com/arees412/avrixo-data-agent#readme",
   "license": "MIT",
   "author": "Vercel",
   "scripts": {
@@ -34,8 +34,17 @@
     "dev:slack": "slack run",
     "build": "next build",
     "start": "next start",
+    "format": "prettier --check README.md package.json .github/workflows/quality.yml docs/*.md FORK_CHANGES.md UPSTREAM.md \"scripts/{check-docs,e2e,evaluate,scan-secrets,validate-semantic}.ts\" \"src/{analytics,audit,evaluation,governance}/**/*.{ts,tsx,yml,yaml}\" \"src/app/api/analyze/**/*.ts\" \"src/components/analytics/**/*.tsx\" \"src/semantic/{metrics,privacy}.yml\" src/semantic/semantic-layer.ts src/app/layout.tsx src/app/page.tsx src/config/schema.ts src/lib/agent.ts src/lib/sqlite.ts src/lib/tools/execute-sqlite.ts src/lib/tools/shell.ts src/services/snowflake_client.ts",
+    "format:write": "prettier --write README.md package.json .github/workflows/quality.yml docs/*.md FORK_CHANGES.md UPSTREAM.md \"scripts/{check-docs,e2e,evaluate,scan-secrets,validate-semantic}.ts\" \"src/{analytics,audit,evaluation,governance}/**/*.{ts,tsx,yml,yaml}\" \"src/app/api/analyze/**/*.ts\" \"src/components/analytics/**/*.tsx\" \"src/semantic/{metrics,privacy}.yml\" src/semantic/semantic-layer.ts src/app/layout.tsx src/app/page.tsx src/config/schema.ts src/lib/agent.ts src/lib/sqlite.ts src/lib/tools/execute-sqlite.ts src/lib/tools/shell.ts src/services/snowflake_client.ts",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:sql": "vitest run src/governance/__tests__/sql-policy.test.ts",
+    "evaluate": "tsx scripts/evaluate.ts",
+    "e2e": "tsx scripts/e2e.ts",
+    "validate:semantic": "tsx scripts/validate-semantic.ts",
+    "validate:docs": "tsx scripts/check-docs.ts",
+    "scan:secrets": "tsx scripts/scan-secrets.ts",
     "eval:dev": "evalite watch",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -147,6 +156,7 @@
     "evalite": "^0.11.5",
     "node-loader": "^2.1.0",
     "postcss": "^8.5.1",
+    "prettier": "^3.6.2",
     "tailwindcss": "^4.1.15",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2",

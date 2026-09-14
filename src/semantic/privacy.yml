@@ -1,0 +1,21 @@
+max_sample_rows: 3
+columns:
+  - table: people
+    column: email
+    classification: pii
+    expose_to_model: false
+    expose_sample_values: false
+    hidden: false
+  - table: people
+    column: birth_date
+    classification: restricted
+    expose_to_model: false
+    expose_sample_values: false
+    hidden: true
+  - table: people
+    column: salary
+    classification: restricted
+    expose_to_model: false
+    expose_sample_values: false
+    hidden: false
+row_policies: []

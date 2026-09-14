@@ -1,0 +1,25 @@
+metrics:
+  - name: monthly_recurring_revenue
+    label: Monthly Recurring Revenue
+    description: Sum of monthly account value in the bundled sample dataset.
+    entity: Accounts
+    expression: SUM(monthly_value)
+    format: currency
+    allowed_dimensions: [contract_start_date, status, account_type]
+    synonyms: [mrr, monthly revenue, recurring revenue]
+    owner: avrixo-sample-data
+    source: bundled-demo
+    version: 1.0.0
+    sample: true
+  - name: company_revenue
+    label: Company Revenue
+    description: Sum of annual company revenue in the bundled sample dataset.
+    entity: Company
+    expression: SUM(revenue)
+    format: currency
+    allowed_dimensions: [name, industry, country, city]
+    synonyms: [revenue, annual revenue, company sales]
+    owner: avrixo-sample-data
+    source: bundled-demo
+    version: 1.0.0
+    sample: true

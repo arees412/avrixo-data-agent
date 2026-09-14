@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Complete environment variable schema for oss-data-analyst API
+ * Environment schema for optional Avrixo DataAgent integrations.
  * Single source of truth for all configuration
  */
 export const configSchema = z
@@ -17,11 +17,16 @@ export const configSchema = z
     // AI Gateway Configuration
     // AI_GATEWAY_API_KEY: z.string().min(1, "AI_GATEWAY_API_KEY is required"),
 
-    // Snowflake Configuration
-    SNOWFLAKE_ACCOUNT: z.string().min(1, "SNOWFLAKE_ACCOUNT is required"),
-    SNOWFLAKE_USERNAME: z.string().min(1, "SNOWFLAKE_USERNAME is required"),
-    SNOWFLAKE_PASSWORD: z.string().min(1, "SNOWFLAKE_PASSWORD is required"),
-    SNOWFLAKE_WAREHOUSE: z.string().min(1, "SNOWFLAKE_WAREHOUSE is required"),
+    // Governed data-source configuration
+    POSTGRES_URL: z.string().url().optional(),
+    QUERY_MAX_ROWS: z.string().transform(Number).default(500),
+    QUERY_TIMEOUT_MS: z.string().transform(Number).default(5000),
+
+    // Inherited optional Snowflake configuration. Not used by the governed path.
+    SNOWFLAKE_ACCOUNT: z.string().optional(),
+    SNOWFLAKE_USERNAME: z.string().optional(),
+    SNOWFLAKE_PASSWORD: z.string().optional(),
+    SNOWFLAKE_WAREHOUSE: z.string().optional(),
     SNOWFLAKE_DATABASE: z.string().optional(),
     SNOWFLAKE_SCHEMA: z.string().optional(),
     SNOWFLAKE_ROLE: z.string().optional(),
@@ -74,7 +79,7 @@ export const configSchema = z
     {
       message:
         "LANGFUSE_SECRET_KEY and LANGFUSE_PUBLIC_KEY are required when OBSERVABILITY_ENABLED=true",
-    }
+    },
   );
 
 export type Config = z.infer<typeof configSchema>;

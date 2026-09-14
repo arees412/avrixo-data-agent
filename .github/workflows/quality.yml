@@ -1,0 +1,35 @@
+name: DataAgent quality
+
+on:
+  push:
+    branches: [main, feat/avrixo-data-agent]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format
+      - run: pnpm lint
+      - run: pnpm type-check
+      - run: pnpm test
+      - run: pnpm test:sql
+      - run: pnpm validate:semantic
+      - run: pnpm evaluate
+      - run: pnpm e2e
+      - run: pnpm build
+      - run: pnpm scan:secrets
+      - run: pnpm validate:docs

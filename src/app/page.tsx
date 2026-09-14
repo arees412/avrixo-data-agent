@@ -1,5 +1,5 @@
-import ChatBotDemo from "@/components/chat/ChatLayout";
+import AnalyticsWorkspace from "@/components/analytics/AnalyticsWorkspace";
 
 export default function HomePage() {
-  return <ChatBotDemo />;
+  return <AnalyticsWorkspace />;
 }

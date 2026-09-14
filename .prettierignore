@@ -1,0 +1,7 @@
+node_modules
+.next
+coverage
+data/*.db
+public/**/*.{png,ttf}
+src/lib/fonts/*.ttf
+pnpm-lock.yaml

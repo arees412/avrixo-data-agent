@@ -2,13 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Query Assistant",
+  title: "Avrixo DataAgent",
   description:
-    "AI-powered text-to-SQL assistant for natural language data queries",
-  icons: {
-    icon: "/oss-data-analyst.svg",
-    apple: "/oss-data-analyst.svg",
-  },
+    "Governed AI analytics with semantic metrics, read-only SQL, charts, and grounded insights",
 };
 
 export default function RootLayout({

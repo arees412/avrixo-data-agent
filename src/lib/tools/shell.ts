@@ -1,26 +1,25 @@
-import { createBashTool } from "bash-tool";
-import type { Sandbox } from "@vercel/sandbox";
+import { readFile } from "node:fs/promises";
+import { resolve, sep } from "node:path";
 
 /**
- * Creates bash tools bound to a specific sandbox instance using bash-tool package.
- * Uploads semantic layer YAML files to the sandbox at ./semantic/
- *
- * Usage:
- * ```ts
- * const sandbox = await Sandbox.create();
- * const { tools } = await createSemanticBashTools(sandbox);
- * // use tools.bash in agent tools...
- * ```
+ * Avrixo does not expose the inherited general-purpose bash tool to model input.
+ * Schema exploration is constrained to reading YAML beneath src/semantic.
  */
-export async function createSemanticBashTools(sandbox: Sandbox) {
-  const { tools } = await createBashTool({
-    sandbox,
-    destination: "./semantic",
-    uploadDirectory: {
-      source: "./src/semantic",
-      include: "**/*.yml",
-    },
-  });
-
-  return { tools };
+export async function readSemanticFile(
+  semanticRoot: string,
+  relativePath: string,
+): Promise<string> {
+  if (
+    !/^(catalog\.yml|metrics\.yml|privacy\.yml|entities\/[A-Za-z0-9_-]+\.ya?ml)$/u.test(
+      relativePath,
+    )
+  ) {
+    throw new Error("Semantic exploration is limited to approved YAML files");
+  }
+  const root = resolve(semanticRoot);
+  const target = resolve(root, relativePath);
+  if (target !== root && !target.startsWith(`${root}${sep}`)) {
+    throw new Error("Semantic path escapes are not permitted");
+  }
+  return readFile(target, "utf8");
 }
